@@ -6,22 +6,22 @@ class ResponseSchema:
 		self.error = False
 		self.message = ""
 		self.data = {} if data==None else self.data
-		self.timestamp = time.time()
+		self.timestamp = round(time.time())
 
-	def customResponse(self, error, message):
+	def customResponse(self, error, message, data=None):
 		self.error = error 
 		self.message = message
+		self.data = data
 
-	def successResponse(self):
-		self.error = false
+	def successMessage(self, data):
+		self.error = False
 		self.message = "Operation completed Successfully"
+		self.data = data
 
-	def errorResponse(self, msg ):
-		self.error = true
+	def errorResponse(self, msg):
+		self.error = True
 		self.message = msg
 
 	def __repr__(self): 
 		return f'Error: {self.error}, Message: {self.message}, at: {self.timestamp}'
 
-# response = ResponseObject()
-# print(response)

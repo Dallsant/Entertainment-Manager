@@ -44,7 +44,7 @@ def run_migrations_offline():
     context.configure(url=url)
 
     with context.begin_transaction():
-        context.run_migrations(include_schemas=True)
+        context.run_migrations()
 
 
 def run_migrations_online():

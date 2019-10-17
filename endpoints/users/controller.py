@@ -4,18 +4,18 @@ from .model import User
 from app import db
 from app import api
 import bcrypt
+import json
+from utilities import responseSchema
+# from sqlalchemy.orm import validates
+
+response = responseSchema.ResponseSchema()
 
 
 user_fields = {
     'id': fields.Integer,
     'name': fields.String,
-    # 'todos': fields.List(fields.Nested({'id': fields.Integer,
-    #                                     'name': fields.String,
-    #                                     'description': fields.String})),
-    'password': fields.String,
-    'email':fields.String
+    'email': fields.String
 }
-
 
 
 user_list_fields = {
@@ -29,41 +29,7 @@ class UsersResource(Resource):
         if user_id:
             user = User.query.filter_by(id=user_id).first()
             return marshal(user, user_fields)
-        else:
-            args = request.args.to_dict()
-            offset = args.get('offset', 0)
-            args.pop('limit', None)
-            args.pop('offset', None)
 
-            user = User.query.filter_by(**args).order_by(User.id)
-
-            if offset:
-                user = user.offset(offset)
-
-            user = user.all()
-
-            return marshal({
-                'count': len(user),
-                'users': [marshal(u, user_fields) for u in user]
-            }, user_list_fields)
-
-    @marshal_with(user_fields)
-    def post(self):
-        try:
-            user = request.get_json()
-            # print(user)
-            newUser = User(**user)
-            # print("hello")
-            print(newUser)
-            db.session.add(newUser)
-            db.session.commit()
-        except Exception as e:
-            print(e)
-
-
-        return user
-
-    @marshal_with(user_fields)
     def put(self, user_id=None):
         user = User.query.get(user_id)
 
@@ -73,7 +39,6 @@ class UsersResource(Resource):
         db.session.commit()
         return user
 
-    @marshal_with(user_fields)
     def delete(self, user_id=None):
         user = User.query.get(user_id)
 
@@ -81,3 +46,34 @@ class UsersResource(Resource):
         db.session.commit()
 
         return user
+
+
+class RegisterUser(Resource):
+    def post(self):
+        try:
+            user = request.get_json()
+            hashedPass = bcrypt.hashpw(
+                user['password'].encode('utf-8'), bcrypt.gensalt())
+            user['password'] = hashedPass.decode('utf-8')
+            db.session.add(User(**user))
+            db.session.commit()
+            response.customResponse(False, "User Registered")
+            return response.__dict__
+
+        except Exception as error:
+            response.errorResponse(str(error))
+            return response.__dict__
+
+    def get(self):
+        try:
+            user = User.query.all()
+            user = marshal({
+                'count': len(user),
+                'users': user
+            }, user_list_fields)
+            response.successMessage(user)
+            return response.__dict__ 
+        
+        except Exception as error:
+            response.errorResponse(str(error))
+            return response.__dict__

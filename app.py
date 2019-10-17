@@ -4,9 +4,12 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.exceptions import HTTPException
 from werkzeug.exceptions import default_exceptions
 import settings
-
-
+from flask_jwt_extended import JWTManager
+from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required,
+                                jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
+import datetime
 app = Flask(__name__)
+jwt = JWTManager(app)
 
 app.config['ENV'] = 'development'
 app.config['DEBUG'] = True
@@ -31,10 +34,17 @@ db = SQLAlchemy(app)
 api = Api(app)
 api.prefix = '/api'
 
-from endpoints.users.controller import UsersResource
-from endpoints.todos.controller import TodosResource
+app.config['JWT_SECRET_KEY'] = settings.SECRET_KEY
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=settings.JWT_EXPIRATION)
 
+from endpoints.users.controller import UsersResource
+from endpoints.users.controller import RegisterUser
+
+# from endpoints.todos.controller import TodosResource
+
+api.add_resource(RegisterUser, '/register')
 api.add_resource(UsersResource, '/users', '/users/<int:user_id>')
-api.add_resource(TodosResource, '/todos', '/todos/<int:todo_id>')
+
+# api.add_resource(TodosResource, '/todos', '/todos/<int:todo_id>')
 if __name__ == '__main__':
     app.run()
