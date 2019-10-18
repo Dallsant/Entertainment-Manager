@@ -23,31 +23,6 @@ user_list_fields = {
     'users': fields.List(fields.Nested(user_fields)),
 }
 
-
-class UsersResource(Resource):
-    def get(self, user_id=None):
-        if user_id:
-            user = User.query.filter_by(id=user_id).first()
-            return marshal(user, user_fields)
-
-    def put(self, user_id=None):
-        user = User.query.get(user_id)
-
-        if 'name' in request.json:
-            user.name = request.json['name']
-
-        db.session.commit()
-        return user
-
-    def delete(self, user_id=None):
-        user = User.query.get(user_id)
-
-        db.session.delete(user)
-        db.session.commit()
-
-        return user
-
-
 class RegisterUser(Resource):
     def post(self):
         try:
@@ -73,7 +48,32 @@ class RegisterUser(Resource):
             }, user_list_fields)
             response.successMessage(user)
             return response.__dict__ 
-        
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__
+
+class UsersResource(Resource):
+    def get(self, user_id=None):
+        if user_id:
+            user = User.query.filter_by(id=user_id).first()
+            return marshal(user, user_fields)
+
+    def put(self, user_id=None):
+        user = User.query.get(user_id)
+
+        if 'name' in request.json:
+            user.name = request.json['name']
+
+        db.session.commit()
+        return user
+
+    def delete(self, user_id=None):
+        user = User.query.get(user_id)
+
+        db.session.delete(user)
+        db.session.commit()
+
+        return user
+
+
+

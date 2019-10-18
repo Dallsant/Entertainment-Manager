@@ -13,7 +13,7 @@ class ResponseSchema:
 		self.message = message
 		self.data = data
 
-	def successMessage(self, data):
+	def successMessage(self, data=None):
 		self.error = False
 		self.message = "Operation completed Successfully"
 		self.data = data
