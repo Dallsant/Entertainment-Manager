@@ -19,7 +19,7 @@ content_fields = {
     'content': fields.List(fields.Nested(content_fields)),
 }
 
-class UserContent(Resource):
+class ContentResource(Resource):
     def post(self):
         try:
             content = request.get_json()

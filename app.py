@@ -37,13 +37,17 @@ api.prefix = '/api'
 app.config['JWT_SECRET_KEY'] = settings.SECRET_KEY
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=settings.JWT_EXPIRATION)
 
-from endpoints.users.controller import UsersResource
-from endpoints.users.controller import RegisterUser
+from endpoints.users.controller import UsersResource, RegisterUser
+from endpoints.userContent.controller import ContentResource, ContentById
+
 
 # from endpoints.todos.controller import TodosResource
 
 api.add_resource(RegisterUser, '/register')
-api.add_resource(UsersResource, '/users', '/users/<int:user_id>')
+api.add_resource(UsersResource, '/users', '/users/<int:id>')
+api.add_resource(ContentResource, '/content')
+api.add_resource(ContentById, '/content/<int:id>')
+
 
 # api.add_resource(TodosResource, '/todos', '/todos/<int:todo_id>')
 if __name__ == '__main__':
