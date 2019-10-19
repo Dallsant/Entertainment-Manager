@@ -9,6 +9,6 @@ class User(db.Model):
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(25), nullable=False)
     email = db.Column(db.String(25), nullable=False)
-    # content = db.relationship('UserContent', backref='user', lazy='select')
+    content = db.relationship('UserContent', backref='user', lazy='select')
     def __repr__(self):
         return 'Id: {}'.format(self.id)
