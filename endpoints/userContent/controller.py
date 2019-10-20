@@ -8,15 +8,10 @@ from utilities import responseSchema
 response = responseSchema.ResponseSchema()
 
 
-content_fields = {
+content_list_fields = {
     'id': fields.Integer,
     'name': fields.String,
     'author': fields.String
-}
-
-content_fields = {
-    'count': fields.Integer,
-    'content': fields.List(fields.Nested(content_fields)),
 }
 
 class ContentResource(Resource):
@@ -25,8 +20,7 @@ class ContentResource(Resource):
             content = request.get_json()
             db.session.add(UserContent(**content))
             db.session.commit()
-            response.customResponse(False, "Content Added")
-            return response.__dict__
+            return marshal(content, content_list_fields)
 
         except Exception as error:
             response.errorResponse(str(error))
@@ -35,24 +29,19 @@ class ContentResource(Resource):
     def get(self):
         try:
             content = UserContent.query.all()
-            content = marshal({
-                'count': len(content),
-                'users': content
-            }, content_fields)
             response.successMessage(content)
-            return response.__dict__ 
+            return marshal(content, content_list_fields)
         
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__
 
-
 class ContentById(Resource):
     def get(self, id=None):
         try:
             content = UserContent.query.filter_by(id=id).first()
-            response.successMessage(content)
-            return response.__dict__ 
+            return marshal(content, content_list_fields)
+
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__
@@ -62,8 +51,8 @@ class ContentById(Resource):
             content = UserContent.query.get(id)
             db.session.delete(content)
             db.session.commit()
-            response.successMessage()
-            return response.__dict__ 
+            return marshal(content, content_list_fields) 
+
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__

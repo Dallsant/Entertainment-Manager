@@ -10,70 +10,52 @@ from utilities import responseSchema
 
 response = responseSchema.ResponseSchema()
 
-
-user_fields = {
+user_list_fields = {
     'id': fields.Integer,
     'name': fields.String,
-    'email': fields.String
+    'email': fields.String,
+    'content': fields.List(fields.Nested({'id': fields.Integer,
+                                        'name': fields.String,
+                                        'author': fields.String,
+                                        }))
 }
 
+class ListUsersResource(Resource):
+    def get(self):
+        try:
+            users = User.query.all()
+            users = [marshal(user, user_list_fields) for user in users]
+            return users
 
-user_list_fields = {
-    'count': fields.Integer,
-    'users': fields.List(fields.Nested(user_fields)),
-}
+        except Exception as error:
+            response.errorResponse(str(error))
+            return response.__dict__
 
 class RegisterUser(Resource):
     def post(self):
         try:
             user = request.get_json()
             hashedPass = bcrypt.hashpw(
-                user['password'].encode('utf-8'), bcrypt.gensalt())
+            user['password'].encode('utf-8'), bcrypt.gensalt())
             user['password'] = hashedPass.decode('utf-8')
             db.session.add(User(**user))
             db.session.commit()
-            response.customResponse(False, "User Registered")
-            return response.__dict__
+            return marshal(user, user_list_fields)
 
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__
 
-    def get(self):
-        try:
-            user = User.query.all()
-            user = marshal({
-                'count': len(user),
-                'users': user
-            }, user_list_fields)
-            response.successMessage(user)
-            return response.__dict__ 
-        except Exception as error:
-            response.errorResponse(str(error))
-            return response.__dict__
+class UsersByIdResource(Resource):
+    def get(self, id=None):
+        user = User.query.filter_by(id=id).first()
+        return marshal(user, user_list_fields)
 
-class UsersResource(Resource):
-    def get(self, user_id=None):
-        if user_id:
-            user = User.query.filter_by(id=user_id).first()
-            return marshal(user, user_fields)
-
-    def put(self, user_id=None):
-        user = User.query.get(user_id)
-
-        if 'name' in request.json:
-            user.name = request.json['name']
-
-        db.session.commit()
-        return user
-
-    def delete(self, user_id=None):
-        user = User.query.get(user_id)
-
+    def delete(self, id=None):
+        user = User.query.get(id)
         db.session.delete(user)
         db.session.commit()
-
-        return user
+        return marshal(user, user_list_fields)
 
 
 

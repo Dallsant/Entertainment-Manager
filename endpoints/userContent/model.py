@@ -11,5 +11,6 @@ class UserContent(db.Model):
                 nullable=False)
     content_type_id = db.Column(db.Integer(), db.ForeignKey('contentType.id'),
                 nullable=False)
+
     def __repr__(self):
         return 'Id: {}'.format(self.id)

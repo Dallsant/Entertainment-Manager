@@ -13,19 +13,19 @@ content_type_fields = {
     'name': fields.String,
 }
 
-content_type_fields = {
-    'count': fields.Integer,
-    'content_types': fields.List(fields.Nested(content_type_fields)),
-}
+content_type_list_fields = {
+    'id': fields.Integer,
+    'name': fields.String
+    }
 
 class ContentTypes(Resource):
     def post(self):
         try:
-            content = request.get_json()
-            db.session.add(ContentTypes(**content))
+            content_type = request.get_json()
+            db.session.add(ContentType(**content_type))
             db.session.commit()
             response.customResponse(False, "Content Type Added")
-            return response.__dict__
+            return marshal(content_type, content_type_fields)
 
         except Exception as error:
             response.errorResponse(str(error))
@@ -34,12 +34,8 @@ class ContentTypes(Resource):
     def get(self):
         try:
             content_type = ContentType.query.all()
-            content_type = marshal({
-                'count': len(content_type),
-                'users': content_type
-            }, content_type_fields)
-            response.successMessage(content_type)
-            return response.__dict__ 
+            content_type = marshal(content_type, content_type_list_fields)
+            return content_type
         
         except Exception as error:
             response.errorResponse(str(error))
@@ -51,7 +47,8 @@ class ContentTypeById(Resource):
         try:
             content_type = ContentType.query.filter_by(id=id).first()
             response.successMessage(content_type)
-            return response.__dict__ 
+            return marshal(content_type, content_type_list_fields)
+
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__
@@ -61,8 +58,8 @@ class ContentTypeById(Resource):
             content_type = ContentType.query.get(id)
             db.session.delete(content_type)
             db.session.commit()
-            response.successMessage()
-            return response.__dict__ 
+            return marshal(content_type, content_type_fields)
+            
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__
