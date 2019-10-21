@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse, request
 from flask_restful import fields, marshal_with, marshal
-from .model import UserContent
+from .model import UserManga
 from app import db
 from app import api
 from utilities import responseSchema
@@ -8,19 +8,22 @@ from utilities import responseSchema
 response = responseSchema.ResponseSchema()
 
 
-content_list_fields = {
+manga_list_fields = {
     'id': fields.Integer,
     'name': fields.String,
+    'chapters_amount': fields.Integer,
+    'left_at':fields.Integer,
+    'finished':fields.Boolean,
     'author': fields.String
 }
 
-class ContentResource(Resource):
+class UserMangaResource(Resource):
     def post(self):
         try:
-            content = request.get_json()
-            db.session.add(UserContent(**content))
+            manga = request.get_json()
+            db.session.add(UserManga(**manga))
             db.session.commit()
-            return marshal(content, content_list_fields)
+            return marshal(manga, manga_list_fields)
 
         except Exception as error:
             response.errorResponse(str(error))
@@ -28,19 +31,19 @@ class ContentResource(Resource):
 
     def get(self):
         try:
-            content = UserContent.query.all()
-            response.successMessage(content)
-            return marshal(content, content_list_fields)
+            manga = UserManga.query.all()
+            response.successMessage(manga)
+            return marshal(manga, manga_list_fields)
         
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__
 
-class ContentById(Resource):
+class UserMangaByIdResource(Resource):
     def get(self, id=None):
         try:
-            content = UserContent.query.filter_by(id=id).first()
-            return marshal(content, content_list_fields)
+            manga = UserManga.query.filter_by(id=id).first()
+            return marshal(manga, manga_list_fields)
 
         except Exception as error:
             response.errorResponse(str(error))
@@ -48,10 +51,10 @@ class ContentById(Resource):
 
     def delete(self, id):
         try:
-            content = UserContent.query.get(id)
-            db.session.delete(content)
+            manga = UserManga.query.get(id)
+            db.session.delete(manga)
             db.session.commit()
-            return marshal(content, content_list_fields) 
+            return marshal(manga, manga_list_fields) 
 
         except Exception as error:
             response.errorResponse(str(error))

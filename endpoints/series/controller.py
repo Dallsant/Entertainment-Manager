@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse, request
 from flask_restful import fields, marshal_with, marshal
-from .model import ContentType
+from .model import UserSeries
 from app import db
 from app import api
 from utilities import responseSchema
@@ -8,24 +8,21 @@ from utilities import responseSchema
 response = responseSchema.ResponseSchema()
 
 
-content_type_fields = {
+series_list_fields = {
     'id': fields.Integer,
     'name': fields.String,
+    'episodes_amount': fields.Integer,
+    'left_at':fields.Integer,
+    'finished':fields.Boolean
 }
 
-content_type_list_fields = {
-    'id': fields.Integer,
-    'name': fields.String
-    }
-
-class ContentTypes(Resource):
+class UserSeriesResource(Resource):
     def post(self):
         try:
-            content_type = request.get_json()
-            db.session.add(ContentType(**content_type))
+            series = request.get_json()
+            db.session.add(UserSeries(**series))
             db.session.commit()
-            response.customResponse(False, "Content Type Added")
-            return marshal(content_type, content_type_fields)
+            return marshal(series, series_list_fields)
 
         except Exception as error:
             response.errorResponse(str(error))
@@ -33,21 +30,19 @@ class ContentTypes(Resource):
 
     def get(self):
         try:
-            content_type = ContentType.query.all()
-            content_type = marshal(content_type, content_type_list_fields)
-            return content_type
+            series = UserSeries.query.all()
+            response.successMessage(series)
+            return marshal(series, series_list_fields)
         
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__
 
-
-class ContentTypeById(Resource):
+class UserSeriesByIdResource(Resource):
     def get(self, id=None):
         try:
-            content_type = ContentType.query.filter_by(id=id).first()
-            response.successMessage(content_type)
-            return marshal(content_type, content_type_list_fields)
+            series = UserSeries.query.filter_by(id=id).first()
+            return marshal(series, series_list_fields)
 
         except Exception as error:
             response.errorResponse(str(error))
@@ -55,11 +50,11 @@ class ContentTypeById(Resource):
 
     def delete(self, id):
         try:
-            content_type = ContentType.query.get(id)
-            db.session.delete(content_type)
+            series = UserSeries.query.get(id)
+            db.session.delete(series)
             db.session.commit()
-            return marshal(content_type, content_type_fields)
-            
+            return marshal(series, series_list_fields) 
+
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__

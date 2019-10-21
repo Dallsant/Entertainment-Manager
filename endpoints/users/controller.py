@@ -31,7 +31,7 @@ class ListUsersResource(Resource):
             response.errorResponse(str(error))
             return response.__dict__
 
-class RegisterUser(Resource):
+class RegisterUserResource(Resource):
     def post(self):
         try:
             user = request.get_json()

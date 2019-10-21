@@ -37,18 +37,24 @@ api.prefix = '/api'
 app.config['JWT_SECRET_KEY'] = settings.SECRET_KEY
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=settings.JWT_EXPIRATION)
 
-from endpoints.users.controller import UsersByIdResource, RegisterUser, ListUsersResource
-from endpoints.userContent.controller import ContentResource, ContentById
-from endpoints.contentTypes.controller import ContentTypes, ContentTypeById
+from endpoints.users.controller import UsersByIdResource, RegisterUserResource, ListUsersResource
+from endpoints.series.controller import UserSeriesResource, UserSeriesByIdResource
+from endpoints.books.controller import UserBookResource, UserBookByIdResource
+from endpoints.manga.controller import UserMangaResource, UserMangaByIdResource
 
 
-api.add_resource(RegisterUser, '/register')
+api.add_resource(RegisterUserResource, '/register')
 api.add_resource(UsersByIdResource, '/users/<int:id>')
 api.add_resource(ListUsersResource, '/users')
-api.add_resource(ContentResource, '/content')
-api.add_resource(ContentById, '/content/<int:id>')
-api.add_resource(ContentTypes, '/content-types')
-api.add_resource(ContentTypeById, '/content-types/<int:id>')
+
+api.add_resource(UserSeriesResource, '/series')
+api.add_resource(UserSeriesByIdResource, '/series/<int:id>')
+
+api.add_resource(UserBookResource, '/books')
+api.add_resource(UserBookByIdResource, '/books/<int:id>')
+
+api.add_resource(UserMangaResource, 'manga/')
+api.add_resource(UserMangaByIdResource, '/manga/<int:id>')
 
 
 if __name__ == '__main__':
