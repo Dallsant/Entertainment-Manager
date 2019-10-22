@@ -4,8 +4,10 @@ from .model import UserBook
 from app import db
 from app import api
 from utilities import responseSchema
+import time
 
-response = responseSchema.ResponseSchema()
+# response = responseSchema.ResponseSchema()
+
 manga_parser = reqparse.RequestParser()
 manga_parser.add_argument(
     'name', help='Field name cannot be blank', required=True)
@@ -32,8 +34,7 @@ class UserBookResource(Resource):
             return marshal(book, book_list_fields)
 
         except Exception as error:
-            response.errorResponse(str(error))
-            return response.__dict__
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
     def get(self):
         try:
@@ -42,8 +43,7 @@ class UserBookResource(Resource):
             return marshal(book, book_list_fields)
 
         except Exception as error:
-            response.errorResponse(str(error))
-            return response.__dict__
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
 
 class UserBookByIdResource(Resource):
@@ -53,8 +53,7 @@ class UserBookByIdResource(Resource):
             return marshal(book, book_list_fields)
 
         except Exception as error:
-            response.errorResponse(str(error))
-            return response.__dict__
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
     def delete(self, id):
         try:
@@ -64,5 +63,4 @@ class UserBookByIdResource(Resource):
             return marshal(book, book_list_fields)
 
         except Exception as error:
-            response.errorResponse(str(error))
-            return response.__dict__
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500

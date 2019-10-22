@@ -11,6 +11,7 @@ from endpoints.manga.controller import manga_list_fields
 from endpoints.series.controller import series_list_fields
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required,
                                 jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
+import time
 
 response = responseSchema.ResponseSchema()
 
@@ -42,8 +43,7 @@ class ListUsersResource(Resource):
             return users
 
         except Exception as error:
-            response.errorResponse(str(error))
-            return response.__dict__
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
 
 class RegisterUserResource(Resource):
@@ -58,14 +58,16 @@ class RegisterUserResource(Resource):
             return marshal(user, user_list_fields)
 
         except Exception as error:
-            response.errorResponse(str(error))
-            return response.__dict__
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
 
 class UsersByIdResource(Resource):
     def get(self, id=None):
-        user = User.query.filter_by(id=id).first()
-        return marshal(user, user_list_fields)
+        try:
+            user = User.query.filter_by(id=id).first()
+            return marshal(user, user_list_fields)
+        except Exception as error:
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
     def delete(self, id=None):
         user = User.query.get(id)
@@ -92,29 +94,35 @@ class LoginResource(Resource):
             if bcrypt.checkpw(credentials['password'].encode('utf8'), user['password'].encode('utf8')) == False:
                 return {"message": "Password does not match"}, 422
             auth_token = create_access_token(identity=user['id'])
-            return {"access_token":auth_token, "message":f"logged in as {user.username}"}, 200
+            return {"access_token": auth_token, "message": f"logged in as {user.username}"}, 200
 
         except Exception as error:
-            response.errorResponse(str(error))
-            return response.__dict__
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
+
 
 class LogoutResource(Resource):
     def post(self):
         try:
             jti = get_raw_jwt()['jti']
-            revoked_token = RevokedToken(jti = jti)
+            revoked_token = RevokedToken(jti=jti)
             revoked_token.add()
             return {'message': 'Access token has been revoked'}
         except:
-            return {'message': 'Something went wrong'}, 500
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
+
 
 class currentUserResource(Resource):
     def get(self):
-        current_user = get_jwt_identity()
-        return current_user, 200
+        try:
+            current_user = get_jwt_identity()
+            return current_user, 200
+        except:
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
 
 class TokenRefreshResource(Resource):
     def post(self):
-        ## WIP
-        return {'message': 'Token refresh'}
+        try:
+            return {'message': 'Token refresh'}
+        except:
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500

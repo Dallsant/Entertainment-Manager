@@ -5,7 +5,7 @@ from app import db
 from app import api
 from utilities import responseSchema
 
-response = responseSchema.ResponseSchema()
+# response = responseSchema.ResponseSchema()
 
 
 manga_list_fields = {
@@ -35,8 +35,7 @@ class UserMangaResource(Resource):
             return marshal(manga, manga_list_fields)
 
         except Exception as error:
-            response.errorResponse(str(error))
-            return response.__dict__
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
     def get(self):
         try:
@@ -45,8 +44,7 @@ class UserMangaResource(Resource):
             return marshal(manga, manga_list_fields)
 
         except Exception as error:
-            response.errorResponse(str(error))
-            return response.__dict__
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
 
 class UserMangaByIdResource(Resource):
@@ -56,8 +54,7 @@ class UserMangaByIdResource(Resource):
             return marshal(manga, manga_list_fields)
 
         except Exception as error:
-            response.errorResponse(str(error))
-            return response.__dict__
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
     def delete(self, id):
         try:
@@ -67,5 +64,4 @@ class UserMangaByIdResource(Resource):
             return marshal(manga, manga_list_fields)
 
         except Exception as error:
-            response.errorResponse(str(error))
-            return response.__dict__
+            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
