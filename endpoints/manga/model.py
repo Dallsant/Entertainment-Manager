@@ -13,4 +13,4 @@ class UserManga(db.Model):
                 nullable=False)
 
     def __repr__(self):
-        return 'Id: {}'.format(self.id)
+        return f'Manga: {self.id} - {self.name}'

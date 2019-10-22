@@ -6,15 +6,22 @@ from app import api
 from utilities import responseSchema
 
 response = responseSchema.ResponseSchema()
-
+manga_parser = reqparse.RequestParser()
+manga_parser.add_argument(
+    'name', help='Field name cannot be blank', required=True)
+manga_parser.add_argument('chapters_amount', required=False)
+manga_parser.add_argument('left_at', required=False)
+manga_parser.add_argument('finished', required=False)
+manga_parser.add_argument('author', required=False)
 
 book_list_fields = {
     'id': fields.Integer,
     'pages_amount': fields.Integer,
-    'left_at':fields.Integer,
-    'finished':fields.Boolean,
+    'left_at': fields.Integer,
+    'finished': fields.Boolean,
     'author': fields.String
 }
+
 
 class UserBookResource(Resource):
     def post(self):
@@ -33,10 +40,11 @@ class UserBookResource(Resource):
             book = UserBook.query.all()
             response.successMessage(book)
             return marshal(book, book_list_fields)
-        
+
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__
+
 
 class UserBookByIdResource(Resource):
     def get(self, id=None):
@@ -53,7 +61,7 @@ class UserBookByIdResource(Resource):
             book = UserBook.query.get(id)
             db.session.delete(book)
             db.session.commit()
-            return marshal(book, book_list_fields) 
+            return marshal(book, book_list_fields)
 
         except Exception as error:
             response.errorResponse(str(error))

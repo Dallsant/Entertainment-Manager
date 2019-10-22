@@ -15,4 +15,4 @@ class UserSeries(db.Model):
                 nullable=False)
 
     def __repr__(self):
-        return 'Id: {}'.format(self.id)
+        return f'Series: {self.id} - {self.name}'

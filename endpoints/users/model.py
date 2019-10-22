@@ -14,4 +14,15 @@ class User(db.Model):
     manga = db.relationship('UserManga', backref='user', lazy='select')
 
     def __repr__(self):
-        return 'Id: {}'.format(self.id)
+        return f'User: {self.id} - {self.username}'
+
+
+class RevokedToken(db.Model):
+    __tablename__ = 'revoked_tokens'
+
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(120))
+
+
+    def __repr__(self):
+        return f'User: {self.id} - {self.username}'

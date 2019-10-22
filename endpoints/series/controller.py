@@ -12,14 +12,22 @@ series_list_fields = {
     'id': fields.Integer,
     'name': fields.String,
     'episodes_amount': fields.Integer,
-    'left_at':fields.Integer,
-    'finished':fields.Boolean
+    'left_at': fields.Integer,
+    'finished': fields.Boolean
 }
+
+series_parser = reqparse.RequestParser()
+series_parser.add_argument(
+    'name', help='Field name cannot be blank', required=True)
+series_parser.add_argument('episodes_amount', required=False)
+series_parser.add_argument('left_at', required=False)
+series_parser.add_argument('finished', required=False)
+
 
 class UserSeriesResource(Resource):
     def post(self):
         try:
-            series = request.get_json()
+            series = series_parser.parse_args()
             db.session.add(UserSeries(**series))
             db.session.commit()
             return marshal(series, series_list_fields)
@@ -33,10 +41,11 @@ class UserSeriesResource(Resource):
             series = UserSeries.query.all()
             response.successMessage(series)
             return marshal(series, series_list_fields)
-        
+
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__
+
 
 class UserSeriesByIdResource(Resource):
     def get(self, id=None):
@@ -53,7 +62,7 @@ class UserSeriesByIdResource(Resource):
             series = UserSeries.query.get(id)
             db.session.delete(series)
             db.session.commit()
-            return marshal(series, series_list_fields) 
+            return marshal(series, series_list_fields)
 
         except Exception as error:
             response.errorResponse(str(error))

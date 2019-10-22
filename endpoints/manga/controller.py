@@ -12,10 +12,19 @@ manga_list_fields = {
     'id': fields.Integer,
     'name': fields.String,
     'chapters_amount': fields.Integer,
-    'left_at':fields.Integer,
-    'finished':fields.Boolean,
+    'left_at': fields.Integer,
+    'finished': fields.Boolean,
     'author': fields.String
 }
+
+manga_parser = reqparse.RequestParser()
+manga_parser.add_argument(
+    'name', help='Field name cannot be blank', required=True)
+manga_parser.add_argument('chapters_amount', required=False)
+manga_parser.add_argument('left_at', required=False)
+manga_parser.add_argument('finished', required=False)
+manga_parser.add_argument('author', required=False)
+
 
 class UserMangaResource(Resource):
     def post(self):
@@ -34,10 +43,11 @@ class UserMangaResource(Resource):
             manga = UserManga.query.all()
             response.successMessage(manga)
             return marshal(manga, manga_list_fields)
-        
+
         except Exception as error:
             response.errorResponse(str(error))
             return response.__dict__
+
 
 class UserMangaByIdResource(Resource):
     def get(self, id=None):
@@ -54,7 +64,7 @@ class UserMangaByIdResource(Resource):
             manga = UserManga.query.get(id)
             db.session.delete(manga)
             db.session.commit()
-            return marshal(manga, manga_list_fields) 
+            return marshal(manga, manga_list_fields)
 
         except Exception as error:
             response.errorResponse(str(error))

@@ -13,4 +13,4 @@ class UserBook(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
-        return 'Id: {}'.format(self.id)
+        return f'Book: {self.id} - {self.name}'
