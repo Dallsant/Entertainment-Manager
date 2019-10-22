@@ -37,8 +37,8 @@ api.prefix = '/api'
 
 app.config['JWT_SECRET_KEY'] = settings.SECRET_KEY
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=settings.JWT_EXPIRATION)
-app.config['JWT_BLACKLIST_ENABLED'] = True
-app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+# app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access']
 
 from endpoints.manga.controller import UserMangaResource, UserMangaByIdResource
 from endpoints.books.controller import UserBookResource, UserBookByIdResource

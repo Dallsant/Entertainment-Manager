@@ -5,6 +5,8 @@ from app import db
 from app import api
 from utilities import responseSchema
 import time
+from flask_jwt_extended import ( jwt_required, jwt_refresh_token_required, get_jwt_identity)
+
 
 # response = responseSchema.ResponseSchema()
 
@@ -26,20 +28,23 @@ book_list_fields = {
 
 
 class UserBookResource(Resource):
+    @jwt_required
     def post(self):
         try:
+            current_user = get_jwt_identity()
             book = request.get_json()
+            book['user_id'] = current_user
             db.session.add(UserBook(**book))
             db.session.commit()
             return marshal(book, book_list_fields)
 
         except Exception as error:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
-
+            
+    @jwt_required
     def get(self):
         try:
             book = UserBook.query.all()
-            response.successMessage(book)
             return marshal(book, book_list_fields)
 
         except Exception as error:
@@ -47,6 +52,7 @@ class UserBookResource(Resource):
 
 
 class UserBookByIdResource(Resource):
+    @jwt_required
     def get(self, id=None):
         try:
             book = UserBook.query.filter_by(id=id).first()
@@ -55,6 +61,7 @@ class UserBookByIdResource(Resource):
         except Exception as error:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
+    @jwt_required   
     def delete(self, id):
         try:
             book = UserBook.query.get(id)

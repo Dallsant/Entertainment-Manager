@@ -34,13 +34,12 @@ register_parser.add_argument(
 register_parser.add_argument(
     'password', help='Field password cannot be blank', required=True)
 
-
 class ListUsersResource(Resource):
+    @jwt_required
     def get(self):
         try:
             users = User.query.all()
-            users = [marshal(user, user_list_fields) for user in users]
-            return users
+            return marshal(users, user_list_fields)
 
         except Exception as error:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
@@ -62,13 +61,15 @@ class RegisterUserResource(Resource):
 
 
 class UsersByIdResource(Resource):
+    @jwt_required
     def get(self, id=None):
         try:
             user = User.query.filter_by(id=id).first()
             return marshal(user, user_list_fields)
+
         except Exception as error:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
-
+    @jwt_required
     def delete(self, id=None):
         user = User.query.get(id)
         db.session.delete(user)
@@ -82,7 +83,6 @@ login_parser.add_argument(
 login_parser.add_argument(
     'password', help='Field password cannot be blank', required=True)
 
-
 class LoginResource(Resource):
     def post(self):
         try:
@@ -93,14 +93,17 @@ class LoginResource(Resource):
                 return {"message": "User not registered"}, 404
             if bcrypt.checkpw(credentials['password'].encode('utf8'), user['password'].encode('utf8')) == False:
                 return {"message": "Password does not match"}, 422
+
             auth_token = create_access_token(identity=user['id'])
-            return {"access_token": auth_token, "message": f"logged in as {user.username}"}, 200
+            return {"access_token": auth_token, "message": f"logged in as {user['username']}"}, 200
 
         except Exception as error:
+            print(error)
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
 
 class LogoutResource(Resource):
+    @jwt_required
     def post(self):
         try:
             jti = get_raw_jwt()['jti']
@@ -112,6 +115,7 @@ class LogoutResource(Resource):
 
 
 class currentUserResource(Resource):
+    @jwt_required
     def get(self):
         try:
             current_user = get_jwt_identity()
@@ -121,6 +125,7 @@ class currentUserResource(Resource):
 
 
 class TokenRefreshResource(Resource):
+    @jwt_required
     def post(self):
         try:
             return {'message': 'Token refresh'}

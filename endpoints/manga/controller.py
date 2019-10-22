@@ -4,7 +4,8 @@ from .model import UserManga
 from app import db
 from app import api
 from utilities import responseSchema
-
+import time 
+from flask_jwt_extended import ( jwt_required, jwt_refresh_token_required, get_jwt_identity)
 # response = responseSchema.ResponseSchema()
 
 
@@ -27,9 +28,12 @@ manga_parser.add_argument('author', required=False)
 
 
 class UserMangaResource(Resource):
+    @jwt_required
     def post(self):
         try:
+            current_user = get_jwt_identity()
             manga = request.get_json()
+            manga['user_id'] = current_user
             db.session.add(UserManga(**manga))
             db.session.commit()
             return marshal(manga, manga_list_fields)
@@ -37,10 +41,10 @@ class UserMangaResource(Resource):
         except Exception as error:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
+    @jwt_required
     def get(self):
         try:
             manga = UserManga.query.all()
-            response.successMessage(manga)
             return marshal(manga, manga_list_fields)
 
         except Exception as error:
@@ -48,6 +52,7 @@ class UserMangaResource(Resource):
 
 
 class UserMangaByIdResource(Resource):
+    @jwt_required
     def get(self, id=None):
         try:
             manga = UserManga.query.filter_by(id=id).first()
