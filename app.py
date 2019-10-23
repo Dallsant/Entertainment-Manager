@@ -44,7 +44,7 @@ from endpoints.manga.controller import UserMangaResource, UserMangaByIdResource
 from endpoints.books.controller import UserBookResource, UserBookByIdResource
 from endpoints.series.controller import UserSeriesResource, UserSeriesByIdResource
 from endpoints.users.controller import (UsersByIdResource, RegisterUserResource, ListUsersResource,
-                                         LoginResource, LogoutResource, TokenRefreshResource)
+                                         LoginResource, LogoutResource)
 
 api.add_resource(RegisterUserResource, '/register')
 api.add_resource(UsersByIdResource, '/users/<int:id>')
@@ -52,7 +52,6 @@ api.add_resource(ListUsersResource, '/users')
 
 api.add_resource(LoginResource, '/login')
 api.add_resource(LogoutResource, '/logout')
-api.add_resource(TokenRefreshResource, '/token/refresh')
 
 api.add_resource(UserSeriesResource, '/series')
 api.add_resource(UserSeriesByIdResource, '/series/<int:id>')

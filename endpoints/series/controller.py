@@ -12,7 +12,7 @@ from flask_jwt_extended import ( jwt_required, jwt_refresh_token_required, get_j
 series_list_fields = {
     'id': fields.Integer,
     'name': fields.String,
-    'episodes': fields.Integer,
+    'amount_of_episodes': fields.Integer,
     'left_at': fields.Integer,
     'finished': fields.Boolean
 }
@@ -20,7 +20,7 @@ series_list_fields = {
 series_parser = reqparse.RequestParser()
 series_parser.add_argument(
     'name', help='Field name cannot be blank', required=True)
-series_parser.add_argument('episodes', required=False)
+series_parser.add_argument('amount_of_episodes', required=False)
 series_parser.add_argument('left_at', required=False)
 series_parser.add_argument('finished', required=False)
 

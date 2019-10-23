@@ -24,4 +24,4 @@ class RevokedToken(db.Model):
     jti = db.Column(db.String(120))
 
     def __repr__(self):
-        return f'User: {self.id} - {self.jti}'
+        return f'Id: {self.id} - {self.jti}'

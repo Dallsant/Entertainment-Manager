@@ -6,7 +6,7 @@ class UserSeries(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    episodes = db.Column(db.Integer)
+    amount_of_episodes = db.Column(db.Integer)
     left_at = db.Column(db.Integer, default=1)
     finished = db.Column(db.Boolean, nullable=False, default=False)
     author = db.Column(db.String)

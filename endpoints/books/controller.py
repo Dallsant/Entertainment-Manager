@@ -7,7 +7,6 @@ from utilities import responseSchema
 import time
 from flask_jwt_extended import ( jwt_required, jwt_refresh_token_required, get_jwt_identity)
 
-
 # response = responseSchema.ResponseSchema()
 
 manga_parser = reqparse.RequestParser()

@@ -38,7 +38,7 @@ class UserMangaResource(Resource):
             db.session.commit()
             return marshal(manga, manga_list_fields)
 
-        except Exception as error:
+        except:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
     @jwt_required
@@ -47,7 +47,7 @@ class UserMangaResource(Resource):
             manga = UserManga.query.all()
             return marshal(manga, manga_list_fields)
 
-        except Exception as error:
+        except:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
 
@@ -58,9 +58,10 @@ class UserMangaByIdResource(Resource):
             manga = UserManga.query.filter_by(id=id).first()
             return marshal(manga, manga_list_fields)
 
-        except Exception as error:
+        except:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
-
+   
+    @jwt_required
     def delete(self, id):
         try:
             manga = UserManga.query.get(id)
@@ -68,5 +69,5 @@ class UserMangaByIdResource(Resource):
             db.session.commit()
             return marshal(manga, manga_list_fields)
 
-        except Exception as error:
+        except:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
