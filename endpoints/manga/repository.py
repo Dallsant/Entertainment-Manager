@@ -1,29 +1,29 @@
-from endpoints.books.model import UserBook
+from endpoints.manga.model import UserManga
 from app import db
 
-class UserBookRepository:
-    def find(self):
+class UserMangaRepository:
+    def find(self, id):
         try:
-            return UserBook.query.all()
+            return UserManga.query.all()
         except Exception as error:
             raise error
 
     def findById(self, id):
         try:
-            return UserBook.query.filter_by(id=id).first()
+            return UserManga.query.filter_by(id=id).first()
         except Exception as error:
             raise error
 
     def add(self, data):
         try:
-            db.session.add(UserBook(**data))
+            db.session.add(UserManga(**data))
             db.session.commit()
         except Exception as error:
             raise error
 
     def delete(self, id):
         try:
-            db.session.delete(UserBook.query.get(id))
+            db.session.delete(UserManga.query.get(id))
             db.session.commit()
         except Exception as error:
             raise error

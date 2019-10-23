@@ -42,9 +42,8 @@ class ListUsersResource(Resource):
     @jwt_required
     def get(self):
         try:
-            users = User.query.all()
+            users = userRepository.find()
             return marshal(users, user_list_fields)
-
         except:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
@@ -62,8 +61,7 @@ class RegisterUserResource(Resource):
             userRepository.add(credentials)
             return marshal(credentials, user_list_fields)
 
-        except Exception as error:
-            print(error)
+        except:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
 
@@ -113,9 +111,7 @@ class LogoutResource(Resource):
             jti = get_raw_jwt()['jti']
             jwtRepository.addRevokedToken(jti)
             return jti, 200
-
-        except Exception as error:
-            print(error)
+        except:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
 

@@ -5,9 +5,10 @@ from app import db
 from app import api
 from utilities import responseSchema
 import time
+from .repository import UserSeriesRepository
 from flask_jwt_extended import ( jwt_required, jwt_refresh_token_required, get_jwt_identity)
-# response = responseSchema.ResponseSchema()
 
+userSeriesRepository = UserSeriesRepository()
 
 series_list_fields = {
     'id': fields.Integer,
@@ -32,40 +33,38 @@ class UserSeriesResource(Resource):
             current_user = get_jwt_identity()
             series = series_parser.parse_args()
             series['user_id'] = current_user
-            db.session.add(UserSeries(**series))
-            db.session.commit()
+            userSeriesRepository.add(series)
             return marshal(series, series_list_fields)
 
-        except Exception as error:
-            print(error)
+        except Exception:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
     @jwt_required
     def get(self):
         try:
-            series = UserSeries.query.all()
+            series = userSeriesRepository.find()
             return marshal(series, series_list_fields)
 
-        except Exception as error:
+        except Exception:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
 
 class UserSeriesByIdResource(Resource):
     @jwt_required
-    def get(self, id=None):
+    def get(self, id):
         try:
-            series = UserSeries.query.filter_by(id=id).first()
+            series = userSeriesRepository.findById(id)
             return marshal(series, series_list_fields)
-        except Exception as error:
+        except Exception:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
 
     @jwt_required
     def delete(self, id):
         try:
-            series = UserSeries.query.get(id)
+            series = userSeriesRepository.findById(id)
             db.session.delete(series)
             db.session.commit()
             return marshal(series, series_list_fields)
 
-        except Exception as error:
+        except Exception:
             return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500

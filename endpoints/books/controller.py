@@ -6,8 +6,9 @@ from app import api
 from utilities import responseSchema
 import time
 from flask_jwt_extended import ( jwt_required, jwt_refresh_token_required, get_jwt_identity)
-
+from .repository import UserBookRepository
 # response = responseSchema.ResponseSchema()
+userBookRepository = UserBookRepository()
 
 manga_parser = reqparse.RequestParser()
 manga_parser.add_argument(
@@ -33,8 +34,7 @@ class UserBookResource(Resource):
             current_user = get_jwt_identity()
             book = request.get_json()
             book['user_id'] = current_user
-            db.session.add(UserBook(**book))
-            db.session.commit()
+            userBookRepository.add(book)
             return marshal(book, book_list_fields)
 
         except Exception as error:
@@ -43,7 +43,7 @@ class UserBookResource(Resource):
     @jwt_required
     def get(self):
         try:
-            book = UserBook.query.all()
+            book = userBookRepository.find()
             return marshal(book, book_list_fields)
 
         except Exception as error:
@@ -52,9 +52,9 @@ class UserBookResource(Resource):
 
 class UserBookByIdResource(Resource):
     @jwt_required
-    def get(self, id=None):
+    def get(self, id):
         try:
-            book = UserBook.query.filter_by(id=id).first()
+            book = userBookRepository.findById(id)
             return marshal(book, book_list_fields)
 
         except Exception as error:
@@ -63,9 +63,7 @@ class UserBookByIdResource(Resource):
     @jwt_required   
     def delete(self, id):
         try:
-            book = UserBook.query.get(id)
-            db.session.delete(book)
-            db.session.commit()
+            book = userBookRepository.delete(id)
             return marshal(book, book_list_fields)
 
         except Exception as error:

@@ -7,6 +7,7 @@ from utilities import responseSchema
 import time 
 from flask_jwt_extended import ( jwt_required, jwt_refresh_token_required, get_jwt_identity)
 # response = responseSchema.ResponseSchema()
+from .repository import UserMangaRepository
 
 
 manga_list_fields = {
@@ -34,8 +35,7 @@ class UserMangaResource(Resource):
             current_user = get_jwt_identity()
             manga = request.get_json()
             manga['user_id'] = current_user
-            db.session.add(UserManga(**manga))
-            db.session.commit()
+            userMangaRepository.add(manga)
             return marshal(manga, manga_list_fields)
 
         except:
@@ -44,7 +44,7 @@ class UserMangaResource(Resource):
     @jwt_required
     def get(self):
         try:
-            manga = UserManga.query.all()
+            manga = userMangaRepository.find()
             return marshal(manga, manga_list_fields)
 
         except:
@@ -53,9 +53,9 @@ class UserMangaResource(Resource):
 
 class UserMangaByIdResource(Resource):
     @jwt_required
-    def get(self, id=None):
+    def get(self, id):
         try:
-            manga = UserManga.query.filter_by(id=id).first()
+            manga = userMangaRepository.findById(id)
             return marshal(manga, manga_list_fields)
 
         except:
@@ -64,9 +64,7 @@ class UserMangaByIdResource(Resource):
     @jwt_required
     def delete(self, id):
         try:
-            manga = UserManga.query.get(id)
-            db.session.delete(manga)
-            db.session.commit()
+            manga = userMangaRepository.delete(id)
             return marshal(manga, manga_list_fields)
 
         except:
