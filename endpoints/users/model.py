@@ -12,6 +12,7 @@ class User(db.Model):
     series = db.relationship('UserSeries', backref='user', lazy='select')
     books = db.relationship('UserBook', backref='user', lazy='select')
     manga = db.relationship('UserManga', backref='user', lazy='select')
+    admin = db.Column(db.Boolean, nullable=False, default = False)
 
     def __repr__(self):
         return f'User: {self.id} - {self.username}'

@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse, request
-from flask_restful import fields, marshal_with, marshal
+from flask_restful import fields, marshal
 from .model import User, RevokedToken
 from app import db
 from app import api
@@ -11,8 +11,9 @@ from endpoints.manga.controller import manga_list_fields
 from endpoints.series.controller import series_list_fields
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required,
                                 jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
-import time
+import datetime
 from .repository import UserRepository, JWTRepository
+from app import logging
 
 userRepository = UserRepository()
 jwtRepository = JWTRepository()
@@ -42,10 +43,15 @@ class ListUsersResource(Resource):
     @jwt_required
     def get(self):
         try:
+            print(4/0)
+            current_user = get_jwt_identity()
+            if not current_user['admin']:
+                return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
             users = userRepository.find()
             return marshal(users, user_list_fields)
-        except:
-            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
+        except Exception as error:
+            logging.error(f'{error}')
+            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
 
 class RegisterUserResource(Resource):
@@ -53,7 +59,7 @@ class RegisterUserResource(Resource):
         try:
             credentials = register_parser.parse_args()
             user = userRepository.findByUsername(credentials['username'])
-            if(bool(user)):
+            if(user):
                 return {'message': 'User Already Registered', 'timestamp': round(time.time())}, 500
             hashedPass = bcrypt.hashpw(
                 credentials['password'].encode('utf-8'), bcrypt.gensalt())
@@ -61,21 +67,29 @@ class RegisterUserResource(Resource):
             userRepository.add(credentials)
             return marshal(credentials, user_list_fields)
 
-        except:
-            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
+        except Exception as error:
+            logging.error(f'{error}')
+            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
 
 class UsersByIdResource(Resource):
     @jwt_required
     def get(self, id=None):
         try:
+            current_user = get_jwt_identity()
+            if current_user['id'] != id and current_user['admin']:
+                return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
             user = userRepository.findById(id)
             return marshal(user, user_list_fields)
-        except:
-            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
+        except Exception as error:
+            logging.error(f'{error}')
+            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
     @jwt_required
-    def delete(self, id=None):
+    def delete(self, id):
+        current_user = get_jwt_identity()
+        if current_user['id'] != id and current_user['admin']:
+            return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
         userRepository.delete(id)
         return id, 200
 
@@ -91,17 +105,18 @@ class LoginResource(Resource):
     def post(self):
         try:
             credentials = login_parser.parse_args()
-            user = bool(userRepository.findByUsername(credentials['username']))
+            user = userRepository.findByUsername(credentials['username'])
             if not user:
                 return {"message": "User not registered"}, 404
             if not bcrypt.checkpw(credentials['password'].encode('utf8'), user['password'].encode('utf8')):
                 return {"message": "Password does not match"}, 422
-
-            auth_token = create_access_token(identity=user['id'])
+            payload = {'id':user['id'], 'user':user['username'], 'admin':user['admin']}
+            auth_token = create_access_token(identity=payload)
             return {"access_token": auth_token}, 200
 
-        except:
-            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
+        except Exception as error:
+            logging.error(f'{error}')
+            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
 
 class LogoutResource(Resource):
@@ -112,14 +127,5 @@ class LogoutResource(Resource):
             jwtRepository.addRevokedToken(jti)
             return jti, 200
         except:
-            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
-
-
-class currentUserResource(Resource):
-    @jwt_required
-    def get(self):
-        try:
-            current_user = get_jwt_identity()
-            return current_user, 200
-        except:
-            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
+            logging.error(f'{error}')
+            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500

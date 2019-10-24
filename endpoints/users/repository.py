@@ -1,6 +1,7 @@
 from endpoints.users.model import User, RevokedToken
 from app import db
 
+
 class UserRepository:
     def find(self):
         try:
@@ -10,13 +11,23 @@ class UserRepository:
 
     def findByUsername(self, username):
         try:
-            return User.query.filter_by(username=username).first()
+            user = User.query.filter_by(username=username).first()
+            if user:
+                return user.__dict__
+            else:
+                return user
+
         except Exception as error:
             raise error
 
     def findById(self, id):
         try:
-            return User.query.filter_by(id=id).first()
+            user = User.query.filter_by(id=id).first()
+            if user:
+                return user.__dict__
+            else:
+                return user
+
         except Exception as error:
             raise error
 

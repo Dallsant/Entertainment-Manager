@@ -8,11 +8,32 @@ class UserSeriesRepository:
         except Exception as error:
             raise error
 
+    def findByName(self, name):
+        try:
+            series = UserSeries.filter_by(name=name).first()
+            if series:
+                return series.__dict__
+            else:
+                return series
+        except Exception as error:
+            raise error    
+
+    def findByUser(self, user_id):
+        try:
+            series = UserSeries.filter_by(user_id=user_id)
+            return series
+        except Exception as error:
+            raise error 
+
     def findById(self, id):
         try:
-            return UserSeries.query.filter_by(id=id).first()
+            series = UserSeries.filter_by(id=id).first()
+            if series:
+                return series.__dict__
+            else:
+                return series
         except Exception as error:
-            raise error
+            raise error  
 
     def add(self, data):
         try:

@@ -6,7 +6,10 @@ from app import api
 from utilities import responseSchema
 import time
 from .repository import UserSeriesRepository
-from flask_jwt_extended import ( jwt_required, jwt_refresh_token_required, get_jwt_identity)
+from flask_jwt_extended import (
+    jwt_required, jwt_refresh_token_required, get_jwt_identity)
+import datetime
+from app import logging
 
 userSeriesRepository = UserSeriesRepository()
 
@@ -32,39 +35,49 @@ class UserSeriesResource(Resource):
         try:
             current_user = get_jwt_identity()
             series = series_parser.parse_args()
-            series['user_id'] = current_user
+            existing_series = userSeriesRepository.findByName(series['name'])
+            if existing_series['name'] == series['name'] and existing_series['user_id'] == current_user['id']:
+                return {'message': 'Resource already exists', 'time': datetime.datetime.now().isoformat()}, 422
+            series['user_id'] = current_user['id']
             userSeriesRepository.add(series)
             return marshal(series, series_list_fields)
 
-        except Exception:
-            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
+        except Exception as error:
+            logging.error(f'{error}')
+            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
     @jwt_required
     def get(self):
         try:
-            series = userSeriesRepository.find()
+            current_user = get_jwt_identity()
+            series = userSeriesRepository.findByUser(current_user['id'])
             return marshal(series, series_list_fields)
-
-        except Exception:
-            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
+        except Exception as error:
+            logging.error(f'{error}')
+            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
 
 class UserSeriesByIdResource(Resource):
     @jwt_required
     def get(self, id):
         try:
+            current_user = get_jwt_identity()
+            if current_user['id'] != id and not current_user['admin']:
+                return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
             series = userSeriesRepository.findById(id)
             return marshal(series, series_list_fields)
-        except Exception:
-            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
+        except Exception as error:
+            logging.error(f'{error}')
+            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
     @jwt_required
     def delete(self, id):
         try:
-            series = userSeriesRepository.findById(id)
-            db.session.delete(series)
-            db.session.commit()
+            current_user = get_jwt_identity()
+            if current_user['id'] != id and not current_user['admin']:
+                return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
+            userSeriesRepository.deleteById(id)
             return marshal(series, series_list_fields)
-
-        except Exception:
-            return {'message': 'Something went wrong', 'timestamp': round(time.time())}, 500
+        except Exception as error:
+            logging.error(f'{error}')
+            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500

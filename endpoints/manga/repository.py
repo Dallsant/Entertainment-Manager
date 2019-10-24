@@ -8,9 +8,30 @@ class UserMangaRepository:
         except Exception as error:
             raise error
 
+    def findByName(self, name):
+        try:
+            manga = UserManga.filter_by(name=name).first()
+            if manga:
+                return manga.__dict__
+            else:
+                return None
+        except Exception as error:
+            raise error    
+
+    def findByUser(self, user_id):
+        try:
+            manga = UserManga.filter_by(user_id=user_id)
+            return manga
+        except Exception as error:
+            raise error 
+
     def findById(self, id):
         try:
-            return UserManga.query.filter_by(id=id).first()
+            manga = UserManga.query.filter_by(id=id).first()
+            if manga:
+                return manga.__dict__
+            else:
+                return None
         except Exception as error:
             raise error
 

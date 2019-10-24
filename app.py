@@ -5,9 +5,11 @@ from werkzeug.exceptions import HTTPException
 from werkzeug.exceptions import default_exceptions
 import settings
 from flask_jwt_extended import JWTManager
-
+import logging 
 import datetime
+
 app = Flask(__name__)
+logging.getLogger(__name__)
 jwt = JWTManager(app)
 
 app.config['ENV'] = 'development'
@@ -27,6 +29,7 @@ for ex in default_exceptions:
     app.register_error_handler(ex, handle_error)
 
 
+
 app.config['SQLALCHEMY_DATABASE_URI'] = settings.SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = settings.SQLALCHEMY_TRACK_MODIFICATIONS
 app.config['BUNDLE_ERRORS'] = settings.BUNDLE_ERRORS
@@ -39,6 +42,9 @@ app.config['JWT_SECRET_KEY'] = settings.SECRET_KEY
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=settings.JWT_EXPIRATION)
 # app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access']
+
+logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# logging.warning('This will get logged to a file')
 
 from endpoints.manga.controller import UserMangaResource, UserMangaByIdResource
 from endpoints.books.controller import UserBookResource, UserBookByIdResource
@@ -64,3 +70,4 @@ api.add_resource(UserMangaByIdResource, '/manga/<int:id>')
 
 if __name__ == '__main__':
     app.run()
+    

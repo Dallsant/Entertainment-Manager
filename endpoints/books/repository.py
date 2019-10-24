@@ -8,11 +8,32 @@ class UserBookRepository:
         except Exception as error:
             raise error
 
+    def findByName(self, name):
+        try:
+            book = UserBook.filter_by(name=name).first()
+            if book:
+                return book.__dict__
+            else:
+                return book
+        except Exception as error:
+            raise error    
+
+    def findByUser(self, user_id):
+        try:
+            book = UserBook.filter_by(user_id=user_id)
+            return book
+        except Exception as error:
+            raise error 
+
     def findById(self, id):
         try:
-            return UserBook.query.filter_by(id=id).first()
+            book = UserBook.filter_by(id=id).first()
+            if book:
+                return book.__dict__
+            else:
+                return book
         except Exception as error:
-            raise error
+            raise error  
 
     def add(self, data):
         try:
@@ -27,5 +48,3 @@ class UserBookRepository:
             db.session.commit()
         except Exception as error:
             raise error
-
-
