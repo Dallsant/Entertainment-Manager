@@ -1,12 +1,14 @@
 from endpoints.manga.model import UserManga
 from app import db
+from app import logging
 
 class UserMangaRepository:
     def find(self, id):
         try:
             return UserManga.query.all()
         except Exception as error:
-            raise error
+            logging.error(f'Manga Repository | {error} ')
+
 
     def findByName(self, name):
         try:
@@ -16,14 +18,16 @@ class UserMangaRepository:
             else:
                 return None
         except Exception as error:
-            raise error    
+            logging.error(f'Manga Repository | {error} ')
+    
 
     def findByUser(self, user_id):
         try:
             manga = UserManga.filter_by(user_id=user_id)
             return manga
         except Exception as error:
-            raise error 
+            logging.error(f'Manga Repository | {error} ')
+ 
 
     def findById(self, id):
         try:
@@ -33,20 +37,23 @@ class UserMangaRepository:
             else:
                 return None
         except Exception as error:
-            raise error
+            logging.error(f'Manga Repository | {error} ')
+
 
     def add(self, data):
         try:
             db.session.add(UserManga(**data))
             db.session.commit()
         except Exception as error:
-            raise error
+            logging.error(f'Manga Repository | {error} ')
 
-    def delete(self, id):
+
+    def deleteById(self, id):
         try:
             db.session.delete(UserManga.query.get(id))
             db.session.commit()
         except Exception as error:
-            raise error
+            logging.error(f'Manga Repository | {error} ')
+
 
 

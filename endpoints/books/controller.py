@@ -30,11 +30,12 @@ book_list_fields = {
 }
 
 
+
 class UserBookResource(Resource):
     @jwt_required
     def post(self):
+       current_user = get_jwt_identity() 
         try:
-            current_user = get_jwt_identity()
             book = request.get_json()
             existing_book = userBookRepository.findByName(book['name'])
             if existing_book['name'] == book['name'] and existing_book['user_id'] == current_user['id']:
@@ -44,41 +45,41 @@ class UserBookResource(Resource):
             return marshal(book, book_list_fields)
 
         except Exception as error:
-            logging.error(f'{error}')
+            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
             return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
     @jwt_required
     def get(self):
+       current_user = get_jwt_identity() 
         try:
-            current_user = get_jwt_identity()
             book = userBookRepository.findByUser(current_user['id'])
             return marshal(book, book_list_fields)
         except Exception as error:
-            logging.error(f'{error}')
+            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
             return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
 
 class UserBookByIdResource(Resource):
     @jwt_required
     def get(self, id):
+       current_user = get_jwt_identity() 
         try:
-            current_user = get_jwt_identity()
             if current_user['id'] != id and not current_user['admin']:
                 return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
             book = userBookRepository.findById(id)
             return marshal(book, book_list_fields)
         except Exception as error:
-            logging.error(f'{error}')
+            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
             return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
     @jwt_required
     def delete(self, id):
+       current_user = get_jwt_identity() 
         try:
-            current_user = get_jwt_identity()
             if current_user['id'] != id and not current_user['admin']:
                 return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
             userBookRepository.deleteById(id)
-            return marshal(book, book_list_fields)
+            return id, 20
         except Exception as error:
-            logging.error(f'{error}')
+            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
             return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500

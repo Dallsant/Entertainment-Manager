@@ -11,6 +11,8 @@ import datetime
 from .repository import UserMangaRepository
 from app import logging
 
+userMangaRepository = UserMangaRepository()
+
 manga_list_fields = {
     'id': fields.Integer,
     'name': fields.String,
@@ -32,52 +34,52 @@ manga_parser.add_argument('author', required=False)
 class UserMangaResource(Resource):
     @jwt_required
     def post(self):
+        current_user = get_jwt_identity()        
         try:
-            current_user = get_jwt_identity()
             manga = request.get_json()
-            existing_manga = usermangaRepository.findByName(manga['name'])
+            existing_manga = userMangaRepository.findByName(manga['name'])
             if existing_manga['name'] == manga['name'] and existing_manga['user_id'] == current_user['id']:
                 return {'message': 'Resource already exists', 'time': datetime.datetime.now().isoformat()}, 422
             manga['user_id'] = current_user['id']
             userMangaRepository.add(manga)
             return marshal(manga, manga_list_fields)
 
-        except:
-            logging.error(f'{error}')
+        except Exception as error:
+            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
             return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
     @jwt_required
     def get(self):
+        current_user = get_jwt_identity()        
         try:
-            current_user = get_jwt_identity()
             manga = userMangaRepository.findByUser(current_user['id'])
             return marshal(manga, manga_list_fields)
-        except:
-            logging.error(f'{error}')
+        except Exception as error:
+            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
             return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
 
 class UserMangaByIdResource(Resource):
     @jwt_required
     def get(self, id):
+        current_user = get_jwt_identity()        
         try:
-            current_user = get_jwt_identity()
             if current_user['id'] != id and not current_user['admin']:
                 return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
             manga = userMangaRepository.findById(id)
             return marshal(manga, manga_list_fields)
-        except:
-            logging.error(f'{error}')
+        except Exception as error:
+            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
             return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
     @jwt_required
     def delete(self, id):
+        current_user = get_jwt_identity()        
         try:
-            current_user = get_jwt_identity()
             if current_user['id'] != id and not current_user['admin']:
                 return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
             userMangaRepository.deleteById(id)
-            return marshal(manga, manga_list_fields)
-        except:
-            logging.error(f'{error}')
+            return id, 200
+        except Exception as error:
+            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
             return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500

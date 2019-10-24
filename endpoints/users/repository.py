@@ -1,5 +1,6 @@
 from endpoints.users.model import User, RevokedToken
 from app import db
+from app import logging
 
 
 class UserRepository:
@@ -7,9 +8,8 @@ class UserRepository:
         try:
             return User.query.all()
         except Exception as error:
-            raise error
 
-    def findByUsername(self, username):
+   def findByUsername(self, username):
         try:
             user = User.query.filter_by(username=username).first()
             if user:
@@ -27,7 +27,6 @@ class UserRepository:
                 return user.__dict__
             else:
                 return user
-
         except Exception as error:
             raise error
 

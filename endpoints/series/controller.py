@@ -32,8 +32,8 @@ series_parser.add_argument('finished', required=False)
 class UserSeriesResource(Resource):
     @jwt_required
     def post(self):
+        current_user = get_jwt_identity()
         try:
-            current_user = get_jwt_identity()
             series = series_parser.parse_args()
             existing_series = userSeriesRepository.findByName(series['name'])
             if existing_series['name'] == series['name'] and existing_series['user_id'] == current_user['id']:
@@ -43,41 +43,41 @@ class UserSeriesResource(Resource):
             return marshal(series, series_list_fields)
 
         except Exception as error:
-            logging.error(f'{error}')
+            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
             return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
     @jwt_required
     def get(self):
+        current_user = get_jwt_identity()
         try:
-            current_user = get_jwt_identity()
             series = userSeriesRepository.findByUser(current_user['id'])
             return marshal(series, series_list_fields)
         except Exception as error:
-            logging.error(f'{error}')
+            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
             return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
 
 class UserSeriesByIdResource(Resource):
     @jwt_required
     def get(self, id):
+        current_user = get_jwt_identity()
         try:
-            current_user = get_jwt_identity()
             if current_user['id'] != id and not current_user['admin']:
                 return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
             series = userSeriesRepository.findById(id)
             return marshal(series, series_list_fields)
         except Exception as error:
-            logging.error(f'{error}')
+            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
             return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
     @jwt_required
     def delete(self, id):
+        current_user = get_jwt_identity()
         try:
-            current_user = get_jwt_identity()
             if current_user['id'] != id and not current_user['admin']:
                 return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
             userSeriesRepository.deleteById(id)
-            return marshal(series, series_list_fields)
+            return marshal(id, series_list_fields)
         except Exception as error:
-            logging.error(f'{error}')
+            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
             return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500

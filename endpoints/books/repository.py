@@ -1,5 +1,6 @@
 from endpoints.books.model import UserBook
 from app import db
+from app import logging
 
 class UserBookRepository:
     def find(self):
@@ -42,7 +43,7 @@ class UserBookRepository:
         except Exception as error:
             raise error
 
-    def delete(self, id):
+    def deleteById(self, id):
         try:
             db.session.delete(UserBook.query.get(id))
             db.session.commit()

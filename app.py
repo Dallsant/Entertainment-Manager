@@ -7,9 +7,18 @@ import settings
 from flask_jwt_extended import JWTManager
 import logging 
 import datetime
+from logging import FileHandler, WARNING
+import sys
+
 
 app = Flask(__name__)
-logging.getLogger(__name__)
+stdout_handler = logging.StreamHandler(sys.stdout)
+file_handler = logging.FileHandler(filename='error.log', mode='a')
+# logging.addLevelName( logging.ERROR, "\033[95m%s\033[1;0m" % logging.getLevelName(logging.ERROR))
+# logging.addLevelName( logging.WARNING, "\033[91m%s\033[1;0m" % logging.getLevelName(logging.WARNING))
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s : %(message)s',
+handlers = [stdout_handler, file_handler])
+
 jwt = JWTManager(app)
 
 app.config['ENV'] = 'development'
@@ -43,9 +52,6 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=settings.JWT
 # app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access']
 
-logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-# logging.warning('This will get logged to a file')
-
 from endpoints.manga.controller import UserMangaResource, UserMangaByIdResource
 from endpoints.books.controller import UserBookResource, UserBookByIdResource
 from endpoints.series.controller import UserSeriesResource, UserSeriesByIdResource
@@ -70,4 +76,5 @@ api.add_resource(UserMangaByIdResource, '/manga/<int:id>')
 
 if __name__ == '__main__':
     app.run()
+
     
