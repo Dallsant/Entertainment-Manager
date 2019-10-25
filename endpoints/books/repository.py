@@ -9,32 +9,33 @@ class UserBookRepository:
         except Exception as error:
             raise error
 
-    def findByName(self, name):
+    def findByName(self, name, user_id):
         try:
-            book = UserBook.filter_by(name=name).first()
+            book = UserBook.query.filter_by(name=name, user_id=user_id).first()
             if book:
-                return book.__dict__
+                return book
             else:
                 return book
         except Exception as error:
-            raise error    
+            raise error
 
     def findByUser(self, user_id):
         try:
-            book = UserBook.filter_by(user_id=user_id)
+            book = UserBook.query.filter_by(user_id=user_id)
+            book = [serie for serie in book]
             return book
         except Exception as error:
-            raise error 
+            raise error
 
     def findById(self, id):
         try:
-            book = UserBook.filter_by(id=id).first()
+            book = UserBook.query.filter_by(id=id).first()
             if book:
-                return book.__dict__
+                return book
             else:
                 return book
         except Exception as error:
-            raise error  
+            raise error
 
     def add(self, data):
         try:

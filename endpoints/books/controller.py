@@ -10,6 +10,7 @@ from flask_jwt_extended import (
 from .repository import UserBookRepository
 import datetime
 from app import logging
+from services.error import err_handler
 
 userBookRepository = UserBookRepository()
 
@@ -33,53 +34,42 @@ book_list_fields = {
 
 class UserBookResource(Resource):
     @jwt_required
+    @err_handler
     def post(self):
-       current_user = get_jwt_identity() 
-        try:
-            book = request.get_json()
-            existing_book = userBookRepository.findByName(book['name'])
-            if existing_book['name'] == book['name'] and existing_book['user_id'] == current_user['id']:
-                return {'message': 'Resource already exists', 'time': datetime.datetime.now().isoformat()}, 422
-            book['user_id'] = current_user['id']
-            userBookRepository.add(book)
-            return marshal(book, book_list_fields)
+        current_user = get_jwt_identity()
+        book = book_parser.parse_args()
+        existing_book = userBookRepository.findByName(book['name'], current_user['id'])
+        if existing_book:
+            return {'message': 'Resource already exists'}, 422
+        book['user_id'] = current_user['id']
+        userBookRepository.add(book)
+        return marshal(book, book_list_fields)
 
-        except Exception as error:
-            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
-            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
 
     @jwt_required
+    @err_handler
     def get(self):
-       current_user = get_jwt_identity() 
-        try:
-            book = userBookRepository.findByUser(current_user['id'])
-            return marshal(book, book_list_fields)
-        except Exception as error:
-            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
-            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
+        current_user = get_jwt_identity()
+        print(current_user['id'])
+        book = userBookRepository.findByUser(current_user['id'])
+        return marshal(book, book_list_fields)
 
 
 class UserBookByIdResource(Resource):
     @jwt_required
+    @err_handler
     def get(self, id):
-       current_user = get_jwt_identity() 
-        try:
-            if current_user['id'] != id and not current_user['admin']:
-                return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
-            book = userBookRepository.findById(id)
-            return marshal(book, book_list_fields)
-        except Exception as error:
-            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
-            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
+        current_user = get_jwt_identity()
+        if current_user['id'] != id and not current_user['admin']:
+            return {'message': 'Access Denied'}, 403
+        book = userBookRepository.findById(id)
+        return marshal(book, book_list_fields)
 
     @jwt_required
+    @err_handler
     def delete(self, id):
-       current_user = get_jwt_identity() 
-        try:
-            if current_user['id'] != id and not current_user['admin']:
-                return {'message': 'Access Denied', 'time': datetime.datetime.now().isoformat()}, 403
-            userBookRepository.deleteById(id)
-            return id, 20
-        except Exception as error:
-            logging.error(f'{request.method} | {request.url} | {error} | {current_user}')
-            return {'message': 'Something went wrong', 'time': datetime.datetime.now().isoformat()}, 500
+        current_user = get_jwt_identity()
+        if current_user['id'] != id and not current_user['admin']:
+            return {'message': 'Access Denied'}, 403
+        userBookRepository.deleteById(id)
+        return marshal(id, book_list_fields)

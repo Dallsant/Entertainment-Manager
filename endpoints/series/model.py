@@ -10,7 +10,6 @@ class UserSeries(db.Model):
     left_at = db.Column(db.Integer, default=1)
     finished = db.Column(db.Boolean, nullable=False, default=False)
     author = db.Column(db.String)
-
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
                 nullable=False)
 

@@ -8,8 +8,9 @@ class UserRepository:
         try:
             return User.query.all()
         except Exception as error:
-
-   def findByUsername(self, username):
+            raise error
+        
+    def findByUsername(self, username):
         try:
             user = User.query.filter_by(username=username).first()
             if user:
@@ -43,7 +44,6 @@ class UserRepository:
             db.session.commit()
         except Exception as error:
             raise error
-
 
 class JWTRepository:
     def addRevokedToken(self, jti):
