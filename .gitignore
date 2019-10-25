@@ -60,8 +60,11 @@ db.sqlite3
 instance/
 .webassets-cache
 
-#DB
+# DB
 flask.db
+
+# Migrations
+migrations/
 
 # Scrapy stuff:
 .scrapy

@@ -12,6 +12,7 @@ class User(db.Model):
     series = db.relationship('UserSeries', backref='user', lazy='select')
     books = db.relationship('UserBook', backref='user', lazy='select')
     manga = db.relationship('UserManga', backref='user', lazy='select')
+    admin = db.Column(db.Boolean, nullable=False, default = False)
 
     def __repr__(self):
         return f'User: {self.id} - {self.username}'
@@ -23,6 +24,5 @@ class RevokedToken(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(120))
 
-
     def __repr__(self):
-        return f'User: {self.id} - {self.username}'
+        return f'Id: {self.id} - {self.jti}'

@@ -6,7 +6,7 @@ class UserManga(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    chapters_amount = db.Column(db.Integer)
+    amount_of_chapters = db.Column(db.Integer)
     left_at = db.Column(db.Integer, nullable=False, default=1)
     finished = db.Column(db.Boolean, nullable = False, default = False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),

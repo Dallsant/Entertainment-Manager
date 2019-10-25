@@ -5,9 +5,20 @@ from werkzeug.exceptions import HTTPException
 from werkzeug.exceptions import default_exceptions
 import settings
 from flask_jwt_extended import JWTManager
-
+import logging 
 import datetime
+from logging import FileHandler, WARNING
+import sys
+
+
 app = Flask(__name__)
+stdout_handler = logging.StreamHandler(sys.stdout)
+file_handler = logging.FileHandler(filename='error.log', mode='a')
+# logging.addLevelName( logging.ERROR, "\033[95m%s\033[1;0m" % logging.getLevelName(logging.ERROR))
+# logging.addLevelName( logging.WARNING, "\033[91m%s\033[1;0m" % logging.getLevelName(logging.WARNING))
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s : %(message)s',
+handlers = [stdout_handler, file_handler])
+
 jwt = JWTManager(app)
 
 app.config['ENV'] = 'development'
@@ -27,6 +38,7 @@ for ex in default_exceptions:
     app.register_error_handler(ex, handle_error)
 
 
+
 app.config['SQLALCHEMY_DATABASE_URI'] = settings.SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = settings.SQLALCHEMY_TRACK_MODIFICATIONS
 app.config['BUNDLE_ERRORS'] = settings.BUNDLE_ERRORS
@@ -37,14 +49,14 @@ api.prefix = '/api'
 
 app.config['JWT_SECRET_KEY'] = settings.SECRET_KEY
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=settings.JWT_EXPIRATION)
-app.config['JWT_BLACKLIST_ENABLED'] = True
-app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+# app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access']
 
 from endpoints.manga.controller import UserMangaResource, UserMangaByIdResource
 from endpoints.books.controller import UserBookResource, UserBookByIdResource
 from endpoints.series.controller import UserSeriesResource, UserSeriesByIdResource
 from endpoints.users.controller import (UsersByIdResource, RegisterUserResource, ListUsersResource,
-                                         LoginResource, LogoutResource, TokenRefreshResource)
+                                         LoginResource, LogoutResource)
 
 api.add_resource(RegisterUserResource, '/register')
 api.add_resource(UsersByIdResource, '/users/<int:id>')
@@ -52,7 +64,6 @@ api.add_resource(ListUsersResource, '/users')
 
 api.add_resource(LoginResource, '/login')
 api.add_resource(LogoutResource, '/logout')
-api.add_resource(TokenRefreshResource, '/token/refresh')
 
 api.add_resource(UserSeriesResource, '/series')
 api.add_resource(UserSeriesByIdResource, '/series/<int:id>')
@@ -65,3 +76,5 @@ api.add_resource(UserMangaByIdResource, '/manga/<int:id>')
 
 if __name__ == '__main__':
     app.run()
+
+    
