@@ -4,7 +4,7 @@ Web application Built using Python (Flask) and Angular 7 to keep track of conten
 
 **How to install?**
 
-**1- Backend **
+1- Backend 
 
 1.1 - In order to run the Backend you'll need to install the latest version of Python 3.x
 
@@ -14,7 +14,7 @@ Web application Built using Python (Flask) and Angular 7 to keep track of conten
 
   * pip install requirements.txt
   
-**2- Frontend **
+2- Frontend 
 
 2.1 - You'll need to have installed both Node version 12.x and Angular 7.x +
 
