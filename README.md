@@ -24,11 +24,11 @@ Web application Built using Python (Flask) and Angular 7 to keep track of conten
   
 **How to run?**
 
-Inside /Backend/ run:
+3 - Inside /Backend/ run:
 
    * python3 app.py
 
-Inside /Frontend/ run:
+4 - Inside /Frontend/ run:
 
    * ng serve 
    
