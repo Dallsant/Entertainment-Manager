@@ -9,7 +9,7 @@ Flask-SQLAlchemy==2.3.2
 itsdangerous==0.24
 Jinja2==2.10
 jsonschema==2.6.0
-Mako==1.0.7
+Mako==1.2.2
 MarkupSafe==1.0
 PyJWT==1.5.3
 python-dateutil==2.6.1
